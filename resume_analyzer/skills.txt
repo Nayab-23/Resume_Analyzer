@@ -1,0 +1,26 @@
+Python
+Java
+JavaScript
+TypeScript
+C++
+C#
+SQL
+PostgreSQL
+MySQL
+Docker
+Kubernetes
+AWS
+GCP
+Azure
+React
+Node.js
+Machine Learning
+Data Analysis
+Pandas
+NumPy
+TensorFlow
+PyTorch
+Git
+REST
+HTML
+CSS

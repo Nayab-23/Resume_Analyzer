@@ -1,0 +1,20 @@
+{
+  "education": [
+    "John Doe\\nEmail: john.doe@example.com\\nPhone: +1 (555) 123-4567\\nSkills: Python, Docker, AWS\\nEducation: Bachelor of Science in Computer Science"
+  ],
+  "emails": [
+    "john.doe@example.com"
+  ],
+  "name": "",
+  "phones": [
+    "+15551234567"
+  ],
+  "skills": [
+    "AWS",
+    "Docker",
+    "Python"
+  ],
+  "summary_lines": [
+    "John Doe\\nEmail: john.doe@example.com\\nPhone: +1 (555) 123-4567\\nSkills: Python, Docker, AWS\\nEducation: Bachelor of Science in Computer Science"
+  ]
+}

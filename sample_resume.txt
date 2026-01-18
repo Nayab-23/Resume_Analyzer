@@ -1,0 +1,1 @@
+John Doe\nEmail: john.doe@example.com\nPhone: +1 (555) 123-4567\nSkills: Python, Docker, AWS\nEducation: Bachelor of Science in Computer Science

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Resume Analyzer</title>
+    <style>
+      :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#06b6d4;--glass:rgba(255,255,255,0.03)}
+      html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+      body{background:linear-gradient(180deg,#071025 0%,#071a2a 100%);color:#e6eef6;display:flex;align-items:center;justify-content:center;padding:32px}
+      .app{width:100%;max-width:980px}
+      header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+      h1{font-size:20px;margin:0}
+      p.lead{margin:0;color:var(--muted)}
+      .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+      .upload{display:flex;gap:16px;align-items:center}
+      .drop{flex:1;border:2px dashed var(--glass);padding:18px;border-radius:10px;text-align:center;cursor:pointer;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+      .drop.drag{border-color:var(--accent);box-shadow:0 8px 30px rgba(6,182,212,0.08)}
+      .controls{display:flex;gap:8px}
+      button{background:var(--accent);border:none;padding:10px 14px;border-radius:8px;color:#042028;cursor:pointer}
+      .result{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:16px}
+      .card{background:rgba(255,255,255,0.02);padding:14px;border-radius:10px}
+      .card h3{margin:0 0 8px 0;font-size:14px}
+      .list{display:flex;flex-direction:column;gap:6px}
+      .chip{background:#0a2540;padding:6px 8px;border-radius:8px;color:var(--muted);font-size:13px}
+      pre.json{background:#041826;padding:12px;border-radius:8px;overflow:auto;color:#bfeefc}
+      .actions{display:flex;gap:8px;justify-content:flex-end}
+      @media (max-width:800px){.result{grid-template-columns:1fr;}.card + .card{margin-top:8px}}
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div>
+          <h1>Resume Analyzer</h1>
+          <p class="lead">Upload a resume (PDF / DOCX / TXT) — results appear instantly.</p>
+        </div>
+        <div class="actions">
+          <a href="/" style="color:var(--muted);text-decoration:none">Refresh</a>
+        </div>
+      </header>
+
+      <div class="panel">
+        <div class="upload">
+          <div id="drop" class="drop">Drop file here or <label style="color:var(--accent);cursor:pointer"><input id="resume" name="resume" type="file" style="display:none">choose a file</label></div>
+          <div class="controls">
+            <button id="analyzeBtn">Analyze</button>
+            <button id="clearBtn" style="background:#102136;color:#9fc9d1">Clear</button>
+          </div>
+        </div>
+
+        <div class="result" style="margin-top:16px">
+          <div class="card" id="mainCard">
+            <h3>Summary</h3>
+            <div id="summary">No analysis yet.</div>
+          </div>
+
+          <div>
+            <div class="card">
+              <h3>Contact</h3>
+              <div id="contact" class="list">—</div>
+            </div>
+            <div class="card" style="margin-top:12px">
+              <h3>Skills</h3>
+              <div id="skills" class="list">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <button id="downloadJson" style="background:#0b3b3f;color:#bff">Download JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const drop = document.getElementById('drop');
+      const resumeInput = document.getElementById('resume');
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const summaryEl = document.getElementById('summary');
+      const contactEl = document.getElementById('contact');
+      const skillsEl = document.getElementById('skills');
+      const downloadJson = document.getElementById('downloadJson');
+
+      let lastJson = null;
+
+      function setLoading(state){ analyzeBtn.textContent = state ? 'Analyzing...' : 'Analyze'; analyzeBtn.disabled = state; }
+
+      ;['dragenter','dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('drag'); }));
+      ;['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('drag'); }));
+      drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if (f) { bindFile(f); } });
+      resumeInput.addEventListener('change', ev => { const f = ev.target.files[0]; if (f) bindFile(f); });
+
+      function bindFile(file){ drop.textContent = file.name; drop.dataset.name = file.name; drop.dataset.file = true; drop.style.opacity = 0.95; drop.title = file.name; drop._file = file; }
+
+      analyzeBtn.addEventListener('click', async () => {
+        const file = resumeInput.files[0] || drop._file;
+        if (!file) { alert('Please pick a file first'); return; }
+        setLoading(true);
+        const fd = new FormData(); fd.append('resume', file);
+        try {
+          const resp = await fetch('/analyze', { method: 'POST', body: fd });
+          if (!resp.ok) throw new Error('Server returned ' + resp.status);
+          const json = await resp.json();
+          lastJson = json;
+          renderResult(json);
+        } catch (err) {
+          summaryEl.textContent = 'Error: ' + err.message;
+        } finally { setLoading(false); }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        drop.textContent = 'Drop file here or choose a file'; drop._file = null; resumeInput.value = ''; summaryEl.textContent='No analysis yet.'; contactEl.innerHTML='—'; skillsEl.innerHTML='—'; lastJson = null; });
+
+      downloadJson.addEventListener('click', () => {
+        if (!lastJson) { alert('No analysis to download'); return; }
+        const blob = new Blob([JSON.stringify(lastJson, null, 2)], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'resume_analysis.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      });
+
+      function renderResult(json){
+        summaryEl.innerHTML = '';
+        const s = document.createElement('div'); s.style.color='var(--muted)'; s.style.whiteSpace='pre-wrap'; s.textContent = (json.summary_lines||[]).join('\n') || '—'; summaryEl.appendChild(s);
+
+        contactEl.innerHTML = '';
+        if (json.name) contactEl.appendChild(createRow('Name', json.name));
+        (json.emails||[]).forEach(e=> contactEl.appendChild(createRow('Email', e)));
+        (json.phones||[]).forEach(p=> contactEl.appendChild(createRow('Phone', p)));
+        if (contactEl.children.length===0) contactEl.textContent='—';
+
+        skillsEl.innerHTML='';
+        if ((json.skills||[]).length){ json.skills.forEach(s=>{ const c = document.createElement('div'); c.className='chip'; c.textContent=s; skillsEl.appendChild(c); }); } else skillsEl.textContent='—';
+      }
+
+      function createRow(label, value){ const d=document.createElement('div'); d.style.display='flex'; d.style.justifyContent='space-between'; d.style.alignItems='center'; d.style.gap='12px'; d.style.padding='4px 0'; const left=document.createElement('div'); left.style.fontSize='13px'; left.innerHTML='<strong style="color:#dff">'+label+':</strong> <span style="color:var(--muted)">'+value+'</span>'; const btn=document.createElement('button'); btn.textContent='Copy'; btn.style.background='#072a30'; btn.style.color='#9fe'; btn.style.border='none'; btn.style.padding='6px 8px'; btn.style.borderRadius='8px'; btn.addEventListener('click', ()=>{ navigator.clipboard.writeText(value); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy',1200); }); d.appendChild(left); d.appendChild(btn); return d; }
+    </script>
+  </body>
+</html>
