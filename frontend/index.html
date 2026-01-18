@@ -136,6 +136,32 @@
       }
 
       function createRow(label, value){ const d=document.createElement('div'); d.style.display='flex'; d.style.justifyContent='space-between'; d.style.alignItems='center'; d.style.gap='12px'; d.style.padding='4px 0'; const left=document.createElement('div'); left.style.fontSize='13px'; left.innerHTML='<strong style="color:#dff">'+label+':</strong> <span style="color:var(--muted)">'+value+'</span>'; const btn=document.createElement('button'); btn.textContent='Copy'; btn.style.background='#072a30'; btn.style.color='#9fe'; btn.style.border='none'; btn.style.padding='6px 8px'; btn.style.borderRadius='8px'; btn.addEventListener('click', ()=>{ navigator.clipboard.writeText(value); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy',1200); }); d.appendChild(left); d.appendChild(btn); return d; }
+
+      // Login Page
+      const loginPage = document.createElement('div');
+      loginPage.innerHTML = `
+        <h2>Login</h2>
+        <form id="loginForm">
+          <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+          </div>
+          <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+          <button type="submit">Login</button>
+        </form>
+      `;
+      document.body.appendChild(loginPage);
+
+      document.getElementById('loginForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        // Implement login logic here
+        alert(`Logged in as ${username}`);
+      });
     </script>
   </body>
 </html>

@@ -6,7 +6,15 @@ from . import analyzer
 import os
 
 
+def login():
+    username = input("Username: ")
+    password = input("Password: ")
+    # Here you would typically validate the username and password
+    print(f"Logged in as {username}")
+
+
 def main(argv=None):
+    login()
     p = argparse.ArgumentParser(description="Simple Resume Analyzer")
     p.add_argument("path", help="Path to resume file (pdf/docx/txt)")
     p.add_argument("--skills", help="Path to skills file", default=os.path.join(os.path.dirname(__file__), "skills.txt"))
