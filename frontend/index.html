@@ -5,52 +5,177 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Resume Analyzer</title>
     <style>
-      :root{--bg:#f9fafb;--card:#ffffff;--muted:#6b7280;--accent:#3b82f6;--border:#e5e7eb;--glass:rgba(255,255,255,0.8)}
-      html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
-      body{background:linear-gradient(180deg,#ffffff 0%,#f2f4f7 100%);color:#111827;display:flex;align-items:center;justify-content:center;padding:32px}
-      .app{width:100%;max-width:980px}
-      header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-      h1{font-size:20px;margin:0;font-weight:600}
-      p.lead{margin:0;color:var(--muted)}
-      .panel{background:var(--card);border-radius:16px;padding:24px;box-shadow:0 10px 45px rgba(15,23,42,0.08);border:1px solid var(--border)}
-      .upload{display:flex;gap:16px;align-items:center}
-      .drop{flex:1;border:2px dashed var(--border);padding:18px;border-radius:12px;text-align:center;cursor:pointer;background:var(--glass);color:#111827;font-weight:500}
-      .drop.drag{border-color:var(--accent);box-shadow:0 12px 30px rgba(59,130,246,0.15)}
-      .controls{display:flex;gap:8px}
-      button{background:var(--accent);border:none;padding:10px 14px;border-radius:10px;color:#fff;font-weight:600;cursor:pointer;transition:background 0.2s ease}
-      button:hover{background:#2563eb}
-      .result{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:16px}
-      .card{background:#f8fafc;padding:18px;border-radius:14px;border:1px solid var(--border);box-shadow:0 6px 24px rgba(15,23,42,0.06)}
-      .card h3{margin:0 0 8px 0;font-size:15px;color:#111827}
-      .list{display:flex;flex-direction:column;gap:6px;color:#111827}
-      .chip{background:#eef2ff;padding:6px 10px;border-radius:999px;color:#1e3a8a;font-size:13px;font-weight:500}
-      pre.json{background:#f1f5f9;padding:12px;border-radius:12px;overflow:auto;color:#0f172a;border:1px solid var(--border)}
-      .actions{display:flex;gap:8px;justify-content:flex-end}
-      @media (max-width:800px){.result{grid-template-columns:1fr;}.card + .card{margin-top:8px}}
+      :root {
+        --bg: #f9fafb;
+        --card: #ffffff;
+        --muted: #6b7280;
+        --accent: #3b82f6;
+        --border: #e5e7eb;
+        --glass: rgba(255, 255, 255, 0.8);
+      }
+      [data-theme='dark'] {
+        --bg: #1f2937;
+        --card: #374151;
+        --muted: #9ca3af;
+        --accent: #3b82f6;
+        --border: #4b5563;
+        --glass: rgba(31, 41, 55, 0.8);
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      }
+      body {
+        background: linear-gradient(180deg, var(--bg) 0%, #f2f4f7 100%);
+        color: #111827;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+      }
+      .app {
+        width: 100%;
+        max-width: 980px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+        font-weight: 600;
+      }
+      p.lead {
+        margin: 0;
+        color: var(--muted);
+      }
+      .panel {
+        background: var(--card);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 10px 45px rgba(15, 23, 42, 0.08);
+        border: 1px solid var(--border);
+      }
+      .upload {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+      .drop {
+        flex: 1;
+        border: 2px dashed var(--border);
+        padding: 18px;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        background: var(--glass);
+        color: #111827;
+        font-weight: 500;
+      }
+      .drop.drag {
+        border-color: var(--accent);
+        box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+      }
+      button {
+        background: var(--accent);
+        border: none;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+      button:hover {
+        background: #2563eb;
+      }
+      .result {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 16px;
+        margin-top: 16px;
+      }
+      .card {
+        background: #f8fafc;
+        padding: 18px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
+      }
+      .card h3 {
+        margin: 0 0 8px 0;
+        font-size: 15px;
+        color: #111827;
+      }
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        color: #111827;
+      }
+      .chip {
+        background: #eef2ff;
+        padding: 6px 10px;
+        border-radius: 999px;
+        color: #1e3a8a;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      pre.json {
+        background: #f1f5f9;
+        padding: 12px;
+        border-radius: 12px;
+        overflow: auto;
+        color: #0f172a;
+        border: 1px solid var(--border);
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      @media (max-width: 800px) {
+        .result {
+          grid-template-columns: 1fr;
+        }
+        .card + .card {
+          margin-top: 8px;
+        }
+      }
     </style>
   </head>
   <body>
-    <div class="app">
+    <div class="app" data-theme="light">
       <header>
         <div>
           <h1>Resume Analyzer</h1>
           <p class="lead">Upload a resume (PDF / DOCX / TXT) — results appear instantly.</p>
         </div>
         <div class="actions">
-          <a href="/" style="color:var(--muted);text-decoration:none">Refresh</a>
+          <a href="/" style="color: var(--muted); text-decoration: none">Refresh</a>
+          <button id="toggleTheme" style="background: none; border: none; color: var(--accent); cursor: pointer;">Toggle Dark Mode</button>
         </div>
       </header>
 
       <div class="panel">
         <div class="upload">
-          <div id="drop" class="drop">Drop file here or <label style="color:var(--accent);cursor:pointer"><input id="resume" name="resume" type="file" style="display:none">choose a file</label></div>
+          <div id="drop" class="drop">Drop file here or <label style="color: var(--accent); cursor: pointer"><input id="resume" name="resume" type="file" style="display: none">choose a file</label></div>
           <div class="controls">
             <button id="analyzeBtn">Analyze</button>
-            <button id="clearBtn" style="background:#102136;color:#9fc9d1">Clear</button>
+            <button id="clearBtn" style="background: #102136; color: #9fc9d1">Clear</button>
           </div>
         </div>
 
-        <div class="result" style="margin-top:16px">
+        <div class="result" style="margin-top: 16px">
           <div class="card" id="mainCard">
             <h3>Summary</h3>
             <div id="summary">No analysis yet.</div>
@@ -61,15 +186,15 @@
               <h3>Contact</h3>
               <div id="contact" class="list">—</div>
             </div>
-            <div class="card" style="margin-top:12px">
+            <div class="card" style="margin-top: 12px">
               <h3>Skills</h3>
               <div id="skills" class="list">—</div>
             </div>
           </div>
         </div>
 
-        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-          <button id="downloadJson" style="background:#0b3b3f;color:#bff">Download JSON</button>
+        <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end">
+          <button id="downloadJson" style="background: #0b3b3f; color: #bff">Download JSON</button>
         </div>
       </div>
     </div>
@@ -83,17 +208,29 @@
       const contactEl = document.getElementById('contact');
       const skillsEl = document.getElementById('skills');
       const downloadJson = document.getElementById('downloadJson');
+      const toggleTheme = document.getElementById('toggleTheme');
+      const app = document.querySelector('.app');
 
       let lastJson = null;
 
-      function setLoading(state){ analyzeBtn.textContent = state ? 'Analyzing...' : 'Analyze'; analyzeBtn.disabled = state; }
+      function setLoading(state) {
+        analyzeBtn.textContent = state ? 'Analyzing...' : 'Analyze';
+        analyzeBtn.disabled = state;
+      }
 
-      ;['dragenter','dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('drag'); }));
-      ;['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('drag'); }));
+      ['dragenter', 'dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('drag'); }));
+      ['dragleave', 'drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('drag'); }));
       drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if (f) { bindFile(f); } });
       resumeInput.addEventListener('change', ev => { const f = ev.target.files[0]; if (f) bindFile(f); });
 
-      function bindFile(file){ drop.textContent = file.name; drop.dataset.name = file.name; drop.dataset.file = true; drop.style.opacity = 0.95; drop.title = file.name; drop._file = file; }
+      function bindFile(file) {
+        drop.textContent = file.name;
+        drop.dataset.name = file.name;
+        drop.dataset.file = true;
+        drop.style.opacity = 0.95;
+        drop.title = file.name;
+        drop._file = file;
+      }
 
       analyzeBtn.addEventListener('click', async () => {
         const file = resumeInput.files[0] || drop._file;
@@ -112,30 +249,81 @@
       });
 
       clearBtn.addEventListener('click', () => {
-        drop.textContent = 'Drop file here or choose a file'; drop._file = null; resumeInput.value = ''; summaryEl.textContent='No analysis yet.'; contactEl.innerHTML='—'; skillsEl.innerHTML='—'; lastJson = null; });
+        drop.textContent = 'Drop file here or choose a file';
+        drop._file = null;
+        resumeInput.value = '';
+        summaryEl.textContent = 'No analysis yet.';
+        contactEl.innerHTML = '—';
+        skillsEl.innerHTML = '—';
+        lastJson = null;
+      });
 
       downloadJson.addEventListener('click', () => {
         if (!lastJson) { alert('No analysis to download'); return; }
-        const blob = new Blob([JSON.stringify(lastJson, null, 2)], {type:'application/json'});
+        const blob = new Blob([JSON.stringify(lastJson, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'resume_analysis.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'resume_analysis.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
       });
 
-      function renderResult(json){
+      function renderResult(json) {
         summaryEl.innerHTML = '';
-        const s = document.createElement('div'); s.style.color='var(--muted)'; s.style.whiteSpace='pre-wrap'; s.textContent = (json.summary_lines||[]).join('\n') || '—'; summaryEl.appendChild(s);
+        const s = document.createElement('div');
+        s.style.color = 'var(--muted)';
+        s.style.whiteSpace = 'pre-wrap';
+        s.textContent = (json.summary_lines || []).join('\n') || '—';
+        summaryEl.appendChild(s);
 
         contactEl.innerHTML = '';
         if (json.name) contactEl.appendChild(createRow('Name', json.name));
-        (json.emails||[]).forEach(e=> contactEl.appendChild(createRow('Email', e)));
-        (json.phones||[]).forEach(p=> contactEl.appendChild(createRow('Phone', p)));
-        if (contactEl.children.length===0) contactEl.textContent='—';
+        (json.emails || []).forEach(e => contactEl.appendChild(createRow('Email', e)));
+        (json.phones || []).forEach(p => contactEl.appendChild(createRow('Phone', p)));
+        if (contactEl.children.length === 0) contactEl.textContent = '—';
 
-        skillsEl.innerHTML='';
-        if ((json.skills||[]).length){ json.skills.forEach(s=>{ const c = document.createElement('div'); c.className='chip'; c.textContent=s; skillsEl.appendChild(c); }); } else skillsEl.textContent='—';
+        skillsEl.innerHTML = '';
+        if ((json.skills || []).length) {
+          json.skills.forEach(s => {
+            const c = document.createElement('div');
+            c.className = 'chip';
+            c.textContent = s;
+            skillsEl.appendChild(c);
+          });
+        } else skillsEl.textContent = '—';
       }
 
-      function createRow(label, value){ const d=document.createElement('div'); d.style.display='flex'; d.style.justifyContent='space-between'; d.style.alignItems='center'; d.style.gap='12px'; d.style.padding='4px 0'; const left=document.createElement('div'); left.style.fontSize='13px'; left.innerHTML='<strong style="color:#dff">'+label+':</strong> <span style="color:var(--muted)">'+value+'</span>'; const btn=document.createElement('button'); btn.textContent='Copy'; btn.style.background='#072a30'; btn.style.color='#9fe'; btn.style.border='none'; btn.style.padding='6px 8px'; btn.style.borderRadius='8px'; btn.addEventListener('click', ()=>{ navigator.clipboard.writeText(value); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy',1200); }); d.appendChild(left); d.appendChild(btn); return d; }
+      function createRow(label, value) {
+        const d = document.createElement('div');
+        d.style.display = 'flex';
+        d.style.justifyContent = 'space-between';
+        d.style.alignItems = 'center';
+        d.style.gap = '12px';
+        d.style.padding = '4px 0';
+        const left = document.createElement('div');
+        left.style.fontSize = '13px';
+        left.innerHTML = '<strong style="color:#dff">' + label + ':</strong> <span style="color:var(--muted)">' + value + '</span>';
+        const btn = document.createElement('button');
+        btn.textContent = 'Copy';
+        btn.style.background = '#072a30';
+        btn.style.color = '#9fe';
+        btn.style.border = 'none';
+        btn.onclick = () => {
+          navigator.clipboard.writeText(value);
+          alert('Copied to clipboard');
+        };
+        d.appendChild(left);
+        d.appendChild(btn);
+        return d;
+      }
+
+      toggleTheme.addEventListener('click', () => {
+        const currentTheme = app.getAttribute('data-theme');
+        app.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
+      });
     </script>
   </body>
 </html>
