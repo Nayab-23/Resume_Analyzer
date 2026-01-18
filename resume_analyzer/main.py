@@ -4,30 +4,49 @@ import sys
 from . import parser
 from . import analyzer
 import os
+from flask import Flask, render_template, request, redirect, url_for, flash
 
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Change this to a random secret key
 
-def main(argv=None):
-    p = argparse.ArgumentParser(description="Simple Resume Analyzer")
-    p.add_argument("path", help="Path to resume file (pdf/docx/txt)")
-    p.add_argument("--skills", help="Path to skills file", default=os.path.join(os.path.dirname(__file__), "skills.txt"))
-    p.add_argument("--output", help="Write JSON output to file")
-    args = p.parse_args(argv)
+@app.route('/')
+def home():
+    return render_template('login.html')
 
-    try:
-        text = parser.extract_text(args.path)
-    except Exception as e:
-        print(f"Failed to extract text: {e}", file=sys.stderr)
-        sys.exit(2)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        # Here you would normally check the username and password
+        if username == 'admin' and password == 'password':  # Replace with real authentication
+            return redirect(url_for('analyze'))
+        else:
+            flash('Invalid credentials. Please try again.')
+    return render_template('login.html')
 
-    report = analyzer.analyze(text, args.skills)
+@app.route('/analyze', methods=['GET', 'POST'])
+def analyze():
+    if request.method == 'POST':
+        path = request.form['path']
+        skills = request.form.get('skills', os.path.join(os.path.dirname(__file__), "skills.txt"))
+        output = request.form.get('output')
 
-    out = json.dumps(report, indent=2, ensure_ascii=False)
-    print(out)
+        try:
+            text = parser.extract_text(path)
+        except Exception as e:
+            print(f"Failed to extract text: {e}", file=sys.stderr)
+            return "Error extracting text", 500
 
-    if args.output:
-        with open(args.output, "w", encoding="utf-8") as f:
-            f.write(out)
+        report = analyzer.analyze(text, skills)
 
+        out = json.dumps(report, indent=2, ensure_ascii=False)
+        if output:
+            with open(output, "w", encoding="utf-8") as f:
+                f.write(out)
+        return out
+
+    return render_template('analyze.html')
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True)
